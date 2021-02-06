@@ -8,6 +8,10 @@ app.use(morgan('tiny'))
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json());
 
+const routePath = require("./api/routes/user")
+app.use("/api/v0",routePath)
+
+
  mongoose.connect('mongodb://localhost:27017/social', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
