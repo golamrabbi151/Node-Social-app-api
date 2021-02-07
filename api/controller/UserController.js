@@ -1,6 +1,7 @@
 const User = require("../../model/User")
 const bcrypt = require("bcrypt")
 const saltRounds = 10
+const jwt = require("jsonwebtoken")
 
 
 const RegisterUser = async (req, res, next) => {
@@ -37,19 +38,24 @@ const LoginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body
         // encrypt pass
-       
-    //    Login User
-       const login = await User.findOne({email:email})
-       if(!login) return res.status(404).json({message:"Email Not found"})
-        // compare password
-       const result = await bcrypt.compareSync(password,login.password)
-       if(!result) return res.json({message: "password Not match"})
 
-       return res.json({login})
-           }
+        //    Login User
+        const login = await User.findOne({ email: email })
+        if (!login) return res.status(404).json({ message: "Email Not found" })
+        // compare password
+        const result = await bcrypt.compareSync(password, login.password)
+        if (!result) return res.json({ message: "password Not match" })
+        let secret = "145"
+        let token = jwt.sign({ id: login._id }, secret, {
+            expiresIn: 86400 // expires in 24 hours
+        });
+        let mytoken = await User.findOneAndUpdate({ email: email }, { $set: { token: token } })
+        res.status(200).send({ auth: true, token: mytoken });
+        //    return res.json({login})
+    }
     catch (error) {
-        res.json({message:error.message})
+        res.json({ message: error.message })
     }
 }
 
-module.exports = { RegisterUser,LoginUser}
+module.exports = { RegisterUser, LoginUser }
