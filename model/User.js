@@ -12,6 +12,15 @@ const UserSchema = new Schema({
         trim:true,
         lowercase:true
     },
+    password:{
+        type:String,
+        required:true,
+    },
+    token:{
+        type:String,
+        default:null
+    },
+
     // phone:{
     //     type:Number,
     //     required:true,
