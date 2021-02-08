@@ -46,7 +46,7 @@ const LoginUser = async (req, res, next) => {
         const result = await bcrypt.compareSync(password, login.password)
         if (!result) return res.json({ message: "password Not match" })
         let secret = "145"
-        let token = jwt.sign({ id: login._id }, secret, {
+        let token = jwt.sign({ id: login._id,role:login.role }, secret, {
             expiresIn: 86400 // expires in 24 hours
         });
         let mytoken = await User.findOneAndUpdate({ email: email }, { $set: { token: token } })
@@ -59,15 +59,11 @@ const LoginUser = async (req, res, next) => {
 }
 //show profile 
 const Profile = async (req, res, next) => {
-    //  res.status(200).send({auth:true,message:`looking for token ${req}`})
-    var token = req.headers.authorization.split(" ")[1];
-    console.log(token);
-    if (!token) return res.status(401).send({ auth: false, message: "no token provided" })
-    //verify token
-    jwt.verify(token, "145", (err, decode) => {
-        if (err) return res.status(500).send({ auth: false, message: "token Authentication failed" })
-        return res.status(200).send({ auth: true, message: decode.id })
-    })
+   const allProfile = await User.find()
+   if(!allProfile) return res.status(404).send({status:false,message:"Profiles not found"})
+   
+//    all profile return
+return res.status(200).send({status:true,data: allProfile})
 }
 
 module.exports = { RegisterUser, LoginUser, Profile }
