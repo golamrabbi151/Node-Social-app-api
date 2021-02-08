@@ -50,12 +50,24 @@ const LoginUser = async (req, res, next) => {
             expiresIn: 86400 // expires in 24 hours
         });
         let mytoken = await User.findOneAndUpdate({ email: email }, { $set: { token: token } })
-        res.status(200).send({ auth: true, token: mytoken });
+        res.status(200).send({ auth: true, token: token });
         //    return res.json({login})
     }
     catch (error) {
         res.json({ message: error.message })
     }
 }
+//show profile 
+const Profile = async (req, res, next) => {
+    //  res.status(200).send({auth:true,message:`looking for token ${req}`})
+    var token = req.headers.authorization.split(" ")[1];
+    console.log(token);
+    if (!token) return res.status(401).send({ auth: false, message: "no token provided" })
+    //verify token
+    jwt.verify(token, "145", (err, decode) => {
+        if (err) return res.status(500).send({ auth: false, message: "token Authentication failed" })
+        return res.status(200).send({ auth: true, message: decode.id })
+    })
+}
 
-module.exports = { RegisterUser, LoginUser }
+module.exports = { RegisterUser, LoginUser, Profile }
